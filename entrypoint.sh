@@ -1,30 +1,34 @@
 #!/bin/bash
 set -eu
 
-GIT_USER_NAME=${1}
-GIT_USER_EMAIL=${2}
-PACKAGE_MANAGER=${3}
-BUMP_VERSION=${4}
-PRE_COMMIT_SCRIPT=${5}
-PULL_REQUEST_LABELS=${6}
-TARGET_VERSION=${7}
-COMMIT_MSG_PREFIX=${8}
-NPM_SCOPE=${9}
-NPM_REGISTRY=${10}
+GIT_USER_NAME=${1} # git-user-name
+GIT_USER_EMAIL=${2} # git-user-email
+PACKAGE_MANAGER=${3} # package-manager
+TARGET_VERSION=${4} # target-version
+MODULES_FILTER=${5} # modules-filter
+REVIEWERS=${6} # reviewers
+COMMIT_MSG_PREFIX=${7} # commit-message-prefix
+PULL_REQUEST_LABELS=${8} # pull-request-labels
+BUMP_VERSION=${9} # bump-version
+NPM_SCOPE=${10} # npm-registry-scope
+NPM_REGISTRY=${11} # npm-registry-url
+PRE_COMMIT_SCRIPT=${12} # pre-commit-script
+
+
 
 if [ -n "${NPM_SCOPE}" ] && [ -n "${NPM_REGISTRY}" ]; then
   NPM_REGISTRY_PATH=${NPM_REGISTRY#https:}
-
+  
   echo "${NPM_SCOPE}:registry=${NPM_REGISTRY}" > .npmrc
   echo "${NPM_REGISTRY_PATH}:_authToken=${NPM_TOKEN}" >> .npmrc
   echo "${NPM_REGISTRY_PATH}:always-auth=true" >> .npmrc
 fi
 
-npx npm-check-updates -u -t ${TARGET_VERSION}
+npx npm-check-updates -u -f ${MODULES_FILTER} -t ${TARGET_VERSION}
 
 if [ "${PACKAGE_MANAGER}" == 'npm' ]; then
   npm i --package-lock-only
-elif [ "${PACKAGE_MANAGER}" == 'yarn' ]; then
+  elif [ "${PACKAGE_MANAGER}" == 'yarn' ]; then
   yarn install
 else
   echo "Invalid package manager '${PACKAGE_MANAGER}'. Please set 'package-manager' to either 'npm' or 'yarn'."
@@ -39,7 +43,7 @@ fi
 if [ -n "${BUMP_VERSION}" ]; then
   if [ "${PACKAGE_MANAGER}" == 'npm' ]; then
     npm version --no-git-tag-version ${BUMP_VERSION}
-  elif [ "${PACKAGE_MANAGER}" == 'yarn' ]; then
+    elif [ "${PACKAGE_MANAGER}" == 'yarn' ]; then
     yarn version --no-git-tag-version "--${BUMP_VERSION}"
   fi
 fi
@@ -65,11 +69,15 @@ DEFAULT_BRANCH=$(curl --silent \
   --url https://api.github.com/repos/${GITHUB_REPOSITORY} \
   --header "authorization: Bearer ${GITHUB_TOKEN}" \
   --header 'content-type: application/json' \
-  --fail | jq -r .default_branch)
+--fail | jq -r .default_branch)
 
 git fetch origin ${DEFAULT_BRANCH}
 
-PR_NUMBER=$(hub pull-request -b ${DEFAULT_BRANCH} --no-edit | grep -o '[^/]*$')
+if [ -n "${REVIEWERS}" ]; then
+  PR_NUMBER=$(hub pull-request -b ${DEFAULT_BRANCH} -r ${REVIEWERS} --no-edit | grep -o '[^/]*$')
+else
+  PR_NUMBER=$(hub pull-request -b ${DEFAULT_BRANCH} --no-edit | grep -o '[^/]*$')
+fi
 
 echo "Created pull request #${PR_NUMBER}."
 
