@@ -1,38 +1,54 @@
-name: Update Node Dependencies
+name: Update Node Dependencies in Bulk
 branding:
   icon: package
   color: green
-description: Updates Node dependencies and creates a pull request with the changes.
+description: Updates node dependencies and creates a pull request with the changes.
 inputs:
-  bump-version:
-    description: If set, bumps the package version based on value (e.g. patch).
-    default: ''
-  commit-message-prefix:
-    description: Prefix to use for commit messages.
-    default: chore
-  git-user-email:
-    description: Git user.email to use for the commit.
-    default: 41898282+github-actions[bot]@users.noreply.github.com
   git-user-name:
     description: Git user.name to use for the commit.
+    required: false
     default: github-actions[bot]
+  git-user-email:
+    description: Git user.email to use for the commit.
+    required: false
+    default: 41898282+github-actions[bot]@users.noreply.github.com
+  package-manager:
+    description: Set to 'yarn' to use yarn. Defaults to npm.
+    required: false
+    default: npm
+  target-version:
+    description: Target version to upgrade to; latest, newest, greatest, minor, patch.
+    required: false
+    default: latest
+  modules-filter:
+    description: Include only packages matching the given string, wildcard, glob, comma-or-space-delimited list, or /regex/.
+    required: false
+    default: '*'
+  reviewers:
+    description: A comma-separated list (no spaces around the comma) of GitHub handles to request a review from.
+    required: false
+  commit-message-prefix:
+    description: Prefix to use for commit messages.
+    required: false
+    default: BOT
+  pull-request-labels:
+    description: Comma-delimited labels to apply to the pull request.
+    required: false
+    default: dependencies
+  bump-version:
+    description: If set, bumps the package version based on value (e.g. patch).
+    required: false
   npm-registry-scope:
     description: NPM registry scope
+    required: false
     default: Packages of this scope will use the registry defined in 'npm-registry-url'.
   npm-registry-url:
     description: NPM registry to used for scope defined in `npm-registry-scope`. Must start with https://.
+    required: false
     default: ''
-  package-manager:
-    description: Set to 'yarn' to use yarn. Defaults to npm.
-    default: npm
   pre-commit-script:
     description: A command to run before committing the dependency changes (e.g. npm run build).
-  pull-request-labels:
-    description: Comma-delimited labels to apply to the pull request.
-    default: dependencies
-  target-version:
-    description: Target version to upgrade to; latest, newest, greatest, minor, patch.
-    default: latest
+    required: false
 runs:
   using: docker
   image: Dockerfile
@@ -40,10 +56,12 @@ runs:
     - ${{ inputs.git-user-name }}
     - ${{ inputs.git-user-email }}
     - ${{ inputs.package-manager }}
-    - ${{ inputs.bump-version }}
-    - ${{ inputs.pre-commit-script }}
-    - ${{ inputs.pull-request-labels }}
     - ${{ inputs.target-version }}
+    - ${{ inputs.modules-filter }}
+    - ${{ inputs.reviewers }}
     - ${{ inputs.commit-message-prefix }}
+    - ${{ inputs.pull-request-labels }}
+    - ${{ inputs.bump-version }}
     - ${{ inputs.npm-registry-scope }}
     - ${{ inputs.npm-registry-url }}
+    - ${{ inputs.pre-commit-script }}

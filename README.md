@@ -10,7 +10,7 @@ Note: prefer dependabot over this action **once** [dependabot supports grouped p
 name: Scheduled dependencies update
 on:
   schedule:
-    - cron: '0 15 * * 2'
+    - cron: "0 15 * * 2"
 jobs:
   update-deps:
     name: Update Node dependencies
@@ -21,16 +21,18 @@ jobs:
       - uses: neverendingqs/gh-action-node-update-deps@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}       # NPM token to use when `npm-registry-*` configs are set
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # NPM token to use when `npm-registry-*` configs are set
         with:
-          bump-version: patch                       # defaults to not bumping the package version
-          commit-message-prefix: fix                # defaults 'chore'
-          package-manager: yarn                     # defaults to 'npm'
-          git-user-email: myemail@example.com       # defaults to '41898282+github-actions[bot]@users.noreply.github.com'
-          git-user-name: Test                       # defaults to 'github-actions[bot]'
-          npm-registry-scope: '@thescope'           # ignored if not all `npm-registry-*` configs are set
-          npm-registry-url: 'https://domain/pkgs'   # ignored if not all `npm-registry-*` configs are set
-          pre-commit-script: npm run build          # defaults to not running anything
-          pull-request-labels: test                 # defaults to 'dependencies'
-          target-version: minor                     # defaults to 'latest'
+          git-user-name: Test # defaults to 'github-actions[bot]'
+          git-user-email: myemail@example.com # defaults to '41898282+github-actions[bot]@users.noreply.github.com'
+          package-manager: yarn # defaults to 'npm'
+          target-version: minor # defaults to 'latest'
+          modules-filter: "@types/node" # defaults to '*'
+          reviewers: developers # defaults to not setting reviewers
+          commit-message-prefix: fix # defaults 'chore'
+          pull-request-labels: test # defaults to 'dependencies'
+          bump-version: patch # defaults to not bumping the package version
+          npm-registry-scope: "@thescope" # ignored if not all `npm-registry-*` configs are set
+          npm-registry-url: "https://domain/pkgs" # ignored if not all `npm-registry-*` configs are set
+          pre-commit-script: npm run build # defaults to not running anything
 ```
