@@ -29,7 +29,7 @@ jobs:
           target-version: minor # defaults to 'latest'
           modules-filter: "@types/node" # defaults to '*'
           reviewers: developers # defaults to not setting reviewers
-          commit-message-prefix: fix # defaults 'chore'
+          commit-message-prefix: fix # defaults 'BOT'
           pull-request-labels: test # defaults to 'dependencies'
           bump-version: patch # defaults to not bumping the package version
           npm-registry-scope: "@thescope" # ignored if not all `npm-registry-*` configs are set

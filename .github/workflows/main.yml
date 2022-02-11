@@ -1,0 +1,20 @@
+on: [push]
+
+jobs:
+  bump_modules:
+    runs-on: ubuntu-latest
+    name: Update node packages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Update the packages
+        uses: ./ 
+        id: bump
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          package-manager: yarn
+          target-version: latest
+          modules-filter: "@types/*"
+          reviewers: mkubrycz
+          pull-request-labels: test
