@@ -17,4 +17,5 @@ jobs:
           target-version: latest
           modules-filter: "@types/*"
           reviewers: mkubrycz
-          pull-request-labels: test
+          pull-request-labels: test,npm,update
+          commit-message-prefix: DEPSBOT
