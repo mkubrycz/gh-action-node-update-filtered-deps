@@ -63,7 +63,16 @@ if [ -n "${PRE_COMMIT_SCRIPT}" ]; then
   ${PRE_COMMIT_SCRIPT}
 fi
 
-git commit -am "${COMMIT_MSG}"
+CHANGED_FILES="$(git status --porcelain --untracked-files=no)"
+FILES_TO_COMMIT=''
+
+if [[ $CHANGED_FILES == *"package.json"* ]]; then FILES_TO_COMMIT="${FILES_TO_COMMIT} package.json"; fi
+if [[ $CHANGED_FILES == *"package-lock.json"* ]]; then FILES_TO_COMMIT="${FILES_TO_COMMIT} package-lock.json"; fi
+if [[ $CHANGED_FILES == *"yarn.lock"* ]]; then FILES_TO_COMMIT="${FILES_TO_COMMIT} yarn.lock"; fi
+if [[ $CHANGED_FILES == *"node_modules"* ]]; then FILES_TO_COMMIT="${FILES_TO_COMMIT} node_modules"; fi
+
+git add ${FILES_TO_COMMIT}
+git commit -m "${COMMIT_MSG}"
 git push origin ${PR_BRANCH}
 
 DEFAULT_BRANCH=$(curl --silent \
